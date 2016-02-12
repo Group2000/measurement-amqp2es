@@ -1,0 +1,27 @@
+{
+  "name": "measurement-amqp2es",
+  "version": "0.0.0",
+  "description": "__measurement-amqp2es Moves celllogger measurements from rabbit MQ to Elasticsearch__",
+  "main": "measurement-amqp2es.js",
+  "dependencies": {
+    "amqplib": "~0.3.0",
+    "elasticsearch": "~8.2.0",
+    "lodash": "~2.4.1",
+    "node-uuid": "~1.4.3",
+    "q": "~1.0.1",
+    "request": "~2.65.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Group2000/measurement-amqp2es.git"
+  },
+  "author": "",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/Group2000/measurement-amqp2es/issues"
+  }
+}
