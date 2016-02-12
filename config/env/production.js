@@ -42,6 +42,10 @@ config.elasticsearch={
 					net:{type:"integer"},
 					area:{type:"integer"},
 					cell:{type:"integer"},
+					provider:{
+						type:"string",
+						index: "not_analyzed"
+					},
 					uuid:{
 						type:"string",
 						index: "not_analyzed"
