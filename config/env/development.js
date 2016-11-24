@@ -2,7 +2,7 @@
 "use strict";
 var config={};
 
-config.debug=true;
+config.debug=false;
 
 config.logging={
 	colour:true,

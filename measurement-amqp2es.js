@@ -51,10 +51,10 @@ function handleError(error,response){
 
 
 var recursive = function () {
-    logger.log("info",reccounter + " measurements posted");
-    logger.log("info",wificounter +" Wifi measurements posted");
-    logger.log("info",errorcounter + " errors");
-  setTimeout(recursive,config.logging.interval);
+	logger.log("info",reccounter + " measurements posted");
+	logger.log("info",wificounter +" Wifi measurements posted");
+	logger.log("info",errorcounter + " errors");
+	setTimeout(recursive,config.logging.interval);
 }
 recursive();
 
@@ -99,13 +99,13 @@ amqp.connect(config.amqp.uri).then(function(conn) {
             if(!error && response.statusCode == 200){
                 ch.ack(msg);
                 reccounter+=1;
-                // if(config.debug && reccounter==100){
-                //     process.exit(0);
-                // }
+                if(config.debug && reccounter==100){
+                     process.exit(0);
+                }
             }
             else{
                 handleError(error,response);
-                ch.nack(msg);
+                ch.nack(msg, false, false);
             }
         });
     }
@@ -157,7 +157,7 @@ amqp.connect(config.amqp.uri).then(function(conn) {
             }
             else{
                 handleError(error,response);
-                ch.nack(msg);
+                ch.nack(msg, false, false);
             }
         });
       

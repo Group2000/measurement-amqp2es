@@ -67,7 +67,7 @@ config.elasticsearch={
 
 					measurement:{type:"boolean"},
 					timestamp:{
-						format: "dateOptionalTime",
+						format: "dateOptionalTime||epoch_millis",
 						type:"date",
 					},
 					location:{
@@ -123,7 +123,7 @@ config.elasticsearch={
 					},
 					measurement:{type:"boolean"},
 					timestamp:{
-						format: "dateOptionalTime",
+						format: "dateOptionalTime||epoch_millis",
 						type:"date",
 					},
 					location:{
