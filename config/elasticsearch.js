@@ -5,13 +5,13 @@ var config = require('./config');
 var logger = require('../utils/logger');
 
 var  esClient = new elasticsearch.Client({
-	hosts:config.elasticsearch.hosts
+	hosts:config.elasticsearch.hosts,
+	apiVersion: '2.4'
 });
 
 function checkEsServer(esClient){
 	esClient.ping({
-		requestTimeout:1000,
-		hello:"es Check"
+		requestTimeout:1000
 	}).then(function(response){
 		logger.log('status',"Connected to Elasticsearch cluster");
 

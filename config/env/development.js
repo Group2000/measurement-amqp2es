@@ -15,19 +15,19 @@ config.service={
 };
 
 config.webservice={
-	uri:'https://localhost:3001/v1/cellmeasurements-dev',
-	wifiuri:'https://localhost:3002/v1/wifimeasurements-dev'
+	uri:'http://localhost:3001/v1/cellmeasurements-dev',
+	wifiuri:'http://localhost:3002/v1/wifimeasurements-dev'
 }
 
 config.amqp={
-	uri: 'amqp://guest:guest@localhost',
+	uri: 'amqp://user:password@rabbitmq',
 	queue: 'measurements-dev',
 	wifiqueue:'measurements-wifi-dev'
 };
 
 config.elasticsearch={
 	hosts:[
-      'localhost:9200'
+      'database:9200'
       
     ],
     cell:{
