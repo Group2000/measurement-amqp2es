@@ -70,7 +70,7 @@ amqp.connect(config.amqp.uri).then(function(conn) {
   return conn.createChannel().then(function(ch) {
     var ok = ch.assertExchange(config.amqp.deadletter, 'topic', {durable: true});
     ok = ok.then(function() {
-       return ch.assertQueue(config.amqp.deadletter, {durable: true, deadLetterExchange: config.amqp.deadletter});
+       return ch.assertQueue(config.amqp.deadletter, {durable: true});
     });
 
     ok = ok.then(function() {
@@ -148,12 +148,12 @@ amqp.connect(config.amqp.uri).then(function(conn) {
 
     wifiok = wifiok.then(function() {
 	logger.log("status", 'Exchange checked in wifi part');
-    	ch.assertQueue(config.amqp.wifiqueue, {durable: true});
+    	ch.assertQueue(config.amqp.wifiqueue, {durable: true, deadLetterExchange: config.amqp.deadletter });
     });
 
     wifiok = wifiok.then(function() {
       logger.log("status", 'wifi queue checked');
-      return ch.bindQueue(config.amqp.wifiqueue, config.amqp.queue, 'WIFI', {'x-dead-letter-exchange': config.amqp.deadletter});
+      return ch.bindQueue(config.amqp.wifiqueue, config.amqp.queue, 'WIFI');
     });
 
     wifiok = wifiok.then(function() {
