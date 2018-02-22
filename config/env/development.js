@@ -22,13 +22,14 @@ config.webservice={
 config.amqp={
 	uri: 'amqp://user:password@rabbitmq',
 	queue: 'measurements-dev',
-	wifiqueue:'measurements-wifi-dev'
+	wifiqueue: 'measurements-wifi-dev',
+	deadletter: 'deadletter'
 };
 
 config.elasticsearch={
 	hosts:[
       'database:9200'
-      
+
     ],
     cell:{
 	    index:'cell_measurements_v1',

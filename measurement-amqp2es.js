@@ -15,7 +15,6 @@ var wificounter=0;
 //TEMP SOLUTION FOR SELF_SIGNED CERTIFICATE
 process.env['NODE_TLS_REJECT_UNAUTHORIZED']='0';
 
-
 function bail(err){
   console.log(err);
   logger.log("error",err);
@@ -29,7 +28,8 @@ function handleError(error,response){
     }else{
         if(response.statusCode == 400){
             logger.log('error',JSON.stringify(response.body));
-            process.exit(0);
+            if(config.debug)
+              process.exit(0);
         }
         else if(response.statusCode==404){
             logger.log('error','404 - Service Down?');
@@ -38,7 +38,7 @@ function handleError(error,response){
                 if(config.debug)
                     process.exit(0);
             }
-            
+
         }
         else{
             logger.log('error',response.statusCode)
@@ -58,22 +58,49 @@ var recursive = function () {
 }
 recursive();
 
+// when something breaks, exit, and restart
+process.on('unhandledRejection', function(reason, p) {
+  logger.log("error",'possibly unhandled rejection in: promise '+ p + ' reason: ' + reason);
+  process.exit(0);
+});
+
+// create deadletter
+amqp.connect(config.amqp.uri).then(function(conn) {
+  process.once('SIGINT', function() { conn.close(); });
+  return conn.createChannel().then(function(ch) {
+    var ok = ch.assertExchange(config.amqp.deadletter, 'topic', {durable: true});
+    ok = ok.then(function() {
+       return ch.assertQueue(config.amqp.deadletter, {durable: true, deadLetterExchange: config.amqp.deadletter});
+    });
+
+    ok = ok.then(function() {
+      return ch.bindQueue(config.amqp.deadletter, config.amqp.deadletter, '*');
+    });
+  });
+}, function (err) {
+  logger.log('error', 'couldn\'t connect, restarting');
+  process.exit(0);
+}).then(null, function (err) {
+  logger.log('error', 'couldn\'t connect, restarting');
+  process.exit(0);
+});
+
 
 amqp.connect(config.amqp.uri).then(function(conn) {
   process.once('SIGINT', function() { conn.close(); });
-  return conn.createChannel().then(function(ch) { 
+  return conn.createChannel().then(function(ch) {
     var ok = ch.assertExchange(config.amqp.queue, 'direct', {durable: true});
     ok = ok.then(function() {
        logger.log("status", 'Exchange checked ');
-       return ch.assertQueue(config.amqp.queue, {durable: true});
+       return ch.assertQueue(config.amqp.queue, {durable: true, deadLetterExchange: config.amqp.deadletter});
     });
-    
+
     ok = ok.then(function() {
       logger.log("status", 'queue checked');
       return ch.bindQueue(config.amqp.queue, config.amqp.queue, 'cell');
     });
 
-    ok = ok.then(function() { 
+    ok = ok.then(function() {
     	logger.log("status", 'Queue bound to exchange');
     	ch.prefetch(100)}
     );
@@ -83,13 +110,13 @@ amqp.connect(config.amqp.uri).then(function(conn) {
     return ok;
 
     function handleEvent(msg) {
-        
+
         var measurement=JSON.parse(msg.content.toString());
 
         if(measurement.measurement!==false){
             measurement.measurement=true;
         }
-        
+
         var options={
             uri:config.webservice.uri,
             method:'POST',
@@ -103,13 +130,12 @@ amqp.connect(config.amqp.uri).then(function(conn) {
                      process.exit(0);
                 }
             }
-            else{
-                handleError(error,response);
+            else {
                 ch.nack(msg, false, false);
+                handleError(error,response);
             }
         });
-    }
-
+     }
   });
 }).then(null, console.warn);
 
@@ -117,7 +143,7 @@ amqp.connect(config.amqp.uri).then(function(conn) {
 amqp.connect(config.amqp.uri).then(function(conn) {
   process.once('SIGINT', function() { conn.close(); });
   return conn.createChannel().then(function(ch) {
-    
+
     var wifiok = ch.assertExchange(config.amqp.queue, 'direct', {durable: true});
 
     wifiok = wifiok.then(function() {
@@ -127,10 +153,10 @@ amqp.connect(config.amqp.uri).then(function(conn) {
 
     wifiok = wifiok.then(function() {
       logger.log("status", 'wifi queue checked');
-      return ch.bindQueue(config.amqp.wifiqueue, config.amqp.queue, 'WIFI');
+      return ch.bindQueue(config.amqp.wifiqueue, config.amqp.queue, 'WIFI', {'x-dead-letter-exchange': config.amqp.deadletter});
     });
 
-    wifiok = wifiok.then(function() { 
+    wifiok = wifiok.then(function() {
       logger.log("status", 'Connected to wifi amqp queue');
       ch.prefetch(100)}
     );
@@ -140,11 +166,9 @@ amqp.connect(config.amqp.uri).then(function(conn) {
     return wifiok;
 
     function handleWifiEvent(msg){
-        
-    
         var measurement=JSON.parse(msg.content.toString());
         measurement.measurement=true;
-        
+
         var options={
             uri:config.webservice.wifiuri,
             method:'POST',
@@ -160,11 +184,6 @@ amqp.connect(config.amqp.uri).then(function(conn) {
                 ch.nack(msg, false, false);
             }
         });
-      
     }
-
-
-
-
   });
 }).then(null, console.warn);

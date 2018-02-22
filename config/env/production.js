@@ -20,7 +20,8 @@ config.webservice={
 config.amqp={
 	uri: 'amqp://guest:guest@localhost',
 	queue: 'measurements',
-	wifiqueue:'measurements-wifi'
+	wifiqueue:'measurements-wifi',
+	deadletter: 'deadletter'
 };
 
 
