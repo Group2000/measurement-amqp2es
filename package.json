@@ -6,7 +6,7 @@
   "dependencies": {
     "amqplib": "~0.3.0",
     "elasticsearch": "~8.2.0",
-    "lodash": "~2.4.1",
+    "lodash": "~4.17.15",
     "node-uuid": "~1.4.3",
     "q": "~1.0.1",
     "request": "~2.65.0"
