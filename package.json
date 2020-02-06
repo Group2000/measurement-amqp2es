@@ -9,7 +9,7 @@
     "lodash": "~2.4.1",
     "node-uuid": "~1.4.3",
     "q": "~1.0.1",
-    "request": "~2.65.0"
+    "request": "~2.88.0"
   },
   "devDependencies": {},
   "scripts": {
